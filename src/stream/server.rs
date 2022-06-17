@@ -11,6 +11,7 @@ use std::sync::Arc;
 use std::task::Poll;
 
 use tokio::sync::mpsc;
+use tokio::time::{interval, Duration};
 
 pub use http::util::PinnedFuture;
 use http::response::Response;
@@ -154,6 +155,7 @@ async fn handle_connection<D: Send + Sync + 'static>(
 	let data = Arc::new(data);
 	// data: (Request, MessageData)
 	let (close_tx, mut close_rx) = mpsc::channel(10);
+	let mut ping_interval = interval(Duration::from_secs(30));
 
 	loop {
 		tokio::select! {
@@ -296,6 +298,10 @@ async fn handle_connection<D: Send + Sync + 'static>(
 					action: req.action,
 					data: data
 				}).await.map_err(|e| e.to_string())?;
+			},
+			_ping = ping_interval.tick() => {
+				ws.ping().await
+					.map_err(|e| e.to_string())?;
 			},
 			msg = close_rx.recv() => {
 				// cannot fail since we always have a close_tx
