@@ -44,7 +44,7 @@ pub struct Streamer<M> {
 
 impl<M> Streamer<M> {
 	/// ## Panics
-	/// If you call this when the Stream::KIND is not Sender
+	/// If you call this when the Stream::KIND is not Receiver
 	pub async fn send(&mut self, data: M) -> Result<(), StreamError>
 	where M: Serialize {
 		match &mut self.inner {
@@ -57,11 +57,23 @@ impl<M> Streamer<M> {
 			},
 			_ => panic!("Streamer: cannot send, in receive mode")
 		}
-		
+	}
+
+	/// Completes when the receiver has dropped.
+	///
+	/// ## Panics
+	/// If you call this when the Stream::KIND is not Receiver
+	pub async fn closed(&self) {
+		match &self.inner {
+			InnerRawStreamer::Sender(tx) => {
+				tx.closed().await;
+			},
+			_ => panic!("Streamer: cannot send, in receive mode")
+		}
 	}
 
 	/// ## Panics
-	/// If you call this when the Stream::KIND is not Receiver
+	/// If you call this when the Stream::KIND is not Sender
 	pub async fn recv(&mut self) -> Result<M, StreamError>
 	where M: DeserializeOwned {
 		match &mut self.inner {

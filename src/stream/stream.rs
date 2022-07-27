@@ -5,6 +5,9 @@ use crate::error::ApiError;
 
 use serde::{Serialize, de::DeserializeOwned};
 
+/// ## Note
+/// The names are in the perspective of a client so a StreamKind of Sender will
+/// mean the client sends data and the server receives it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum StreamKind {
 	Sender,
