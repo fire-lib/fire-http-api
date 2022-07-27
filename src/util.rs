@@ -17,6 +17,7 @@ pub fn request_handle_error(e: impl fmt::Debug) {
 	error!("request handle error: {:?}", e);
 }
 
+#[allow(unused)]
 macro_rules! trace {
 	($($tt:tt)*) => (
 		#[cfg(feature = "trace")]
