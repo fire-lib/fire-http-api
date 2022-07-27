@@ -188,11 +188,13 @@ async fn handle_connection<D: Send + Sync + 'static>(
 					k @ MessageKind::ReceiverRequest => {
 						// no handler
 						if !handlers.contains_key(&req) {
+							error!("no handler for {:?} found", req);
 							ws.serialize(&Message {
 								kind: msg.kind.into_close(),
 								action: req.action.clone(),
 								data: MessageData::null()
 							}).await.map_err(|e| e.to_string())?;
+							continue
 						}
 
 						// we know the handler exists
