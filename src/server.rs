@@ -203,7 +203,7 @@ macro_rules! custom_request_handler {
 					let (status, body) = match ret {
 						Ok(b) => (__Status::Ok, b),
 						Err(e) => {
-							eprintln!("request handle error: {:?}", e);
+							$crate::util::request_handle_error(&e);
 
 							let status = e.status_code();
 							// now serialize the error
@@ -232,6 +232,7 @@ macro_rules! custom_request_handler {
 
 	)
 }
+
 
 
 #[cfg(test)]

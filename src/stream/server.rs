@@ -13,6 +13,8 @@ use std::task::Poll;
 use tokio::sync::mpsc;
 use tokio::time::{interval, Duration};
 
+use tracing::error;
+
 pub use http::util::PinnedFuture;
 use http::response::Response;
 use http::error::{ClientErrorKind};
@@ -121,10 +123,12 @@ where D: Clone + Send + Sync + 'static {
 				match on_upgrade.await {
 					Ok(upgraded) => {
 						let ws = WebSocket::new(upgraded).await;
+
+						trace!("connection upgraded");
 						
 						let res = handle_connection(handlers, ws, data).await;
 						if let Err(e) = res {
-							eprintln!("websocket connection failed with {:?}", e);
+							error!("websocket connection failed with {:?}", e);
 						}
 
 					},
@@ -171,6 +175,8 @@ async fn handle_connection<D: Send + Sync + 'static>(
 						continue
 					}
 				};
+
+				trace!("received message {:?}", msg);
 
 				let req = Request {
 					action: msg.action,
@@ -251,10 +257,8 @@ async fn handle_connection<D: Send + Sync + 'static>(
 										let _ = close_tx.send((req, m)).await;
 									},
 									Err(e) => {
-										eprintln!(
-											"stream handler unrecoverable \
-											error {:?}",
-											e
+										error!("stream handler unrecoverable \
+											error {:?}", e
 										);
 										let _ = close_tx.send(
 											(req, MessageData::null())

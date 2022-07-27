@@ -1,10 +1,11 @@
 #![doc = include_str!("../README.md")]
 
+#[doc(hidden)]
+#[macro_use]
+pub mod util;
 pub mod error;
 pub mod request;
 mod server;
-#[doc(hidden)]
-pub mod util;
 #[cfg(feature = "stream")]
 pub mod stream;
 
