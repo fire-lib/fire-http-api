@@ -170,7 +170,8 @@ async fn handle_connection<D: Send + Sync + 'static>(
 					Err(JsonError::ConnectionError(e)) => {
 						return Err(e.to_string().into())
 					},
-					Err(JsonError::SerdeError(_)) => {
+					Err(JsonError::SerdeError(e)) => {
+						error!("could not deserialize message {:?}", e);
 						// json error just ignore the message
 						continue
 					}

@@ -31,6 +31,7 @@ impl MessageKind {
 pub struct Message {
 	pub kind: MessageKind,
 	pub action: Cow<'static, str>,
+	#[serde(default = "MessageData::null")]
 	pub data: MessageData
 }
 
